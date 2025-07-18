@@ -10,7 +10,6 @@ local humanoid = char:WaitForChild("Humanoid")
 local WALK_SPEED = humanoid.WalkSpeed
 local TELEPORT_SPEED = WALK_SPEED * 2
 local UNDERGROUND_OFFSET = 7
-local SURFACE_TRANSITION_DURATION = 0.5
 
 -- Обновленный список точек телепорта с номерами для сортировки
 local LOCATIONS = {
@@ -51,18 +50,21 @@ local LOCATIONS = {
     ["Pocket Dimension"] = {pos = Vector3.new(5792.15, 2.50, 5520.05), num = 9997},
     ["Cont X"] = {pos = Vector3.new(127.89, 5.65, 1024.25), num = 9996},
     ["Nuke"] = {pos = Vector3.new(525.98, 5.65, 1023.73), num = 9995},
-    ["Насосы"] = {pos = Vector3.new(-407.21, 4.31, 210.67), num = 9994},
+    ["Pumps"] = {pos = Vector3.new(-407.21, 4.31, 210.67), num = 9994},
     ["Arsenal"] = {pos = Vector3.new(91.89, 5.64, 475.40), num = 9993},
     ["Arsenal 2"] = {pos = Vector3.new(-40.87, 5.62, 811.13), num = 9992}
 }
 
--- Сортировка по номеру SCP (от меньшего к большему)
+-- Формируем отсортированный список имен для кнопок (без дубликатов и с корректной сортировкой)
 local sortedNames = {}
 for name, data in pairs(LOCATIONS) do
     table.insert(sortedNames, {name = name, num = data.num})
 end
-
 table.sort(sortedNames, function(a, b)
+    -- Сначала по num, если равны — по алфавиту
+    if a.num == b.num then
+        return a.name < b.name
+    end
     return a.num < b.num
 end)
 
@@ -91,27 +93,35 @@ local function smoothTeleport(destination)
     local distance = (destination - startPos).Magnitude
     local duration = distance / TELEPORT_SPEED
     local startTime = os.clock()
-    
+
+    local finished = false
     local conn
     conn = RunService.Heartbeat:Connect(function()
         local progress = math.min((os.clock() - startTime) / duration, 1)
-        progress = math.sin(progress * math.pi/2)
-        
         local currentPos = undergroundPos:Lerp(
             Vector3.new(destination.X, destination.Y - UNDERGROUND_OFFSET, destination.Z),
             progress
         )
         hrp.CFrame = CFrame.new(currentPos)
-        
-        if progress >= 1 then
+        if progress >= 1 and not finished then
+            finished = true
             conn:Disconnect()
-            
-            for i = 1, 10 do
-                local yPos = (destination.Y - UNDERGROUND_OFFSET) + (UNDERGROUND_OFFSET * (i/10))
+            -- Явно ставим персонажа под землю перед подъемом
+            hrp.CFrame = CFrame.new(destination.X, destination.Y - UNDERGROUND_OFFSET, destination.Z)
+
+            -- Пауза и плавный подъем с коллизиями включенными
+            local steps = 30
+            for i = 1, steps do
+                local t = i / steps
+                local smoothT = math.sin(t * math.pi / 2)
+                local yPos = (destination.Y - UNDERGROUND_OFFSET) + (UNDERGROUND_OFFSET * smoothT)
                 hrp.CFrame = CFrame.new(destination.X, yPos, destination.Z)
-                task.wait(SURFACE_TRANSITION_DURATION/10)
+                -- Включаем коллизии на этапе подъема, чтобы не провалиться
+                for part, canCollide in pairs(originalCollisions) do
+                    part.CanCollide = canCollide
+                end
+                task.wait(0.02)
             end
-            
             hrp.CFrame = CFrame.new(destination)
             for part, canCollide in pairs(originalCollisions) do
                 part.CanCollide = canCollide
@@ -132,23 +142,50 @@ frame.Size = UDim2.new(0, 300, 0, 500)
 frame.Position = UDim2.new(0.5, -150, 0.5, -250)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
 frame.Active = true
-frame.Draggable = true
+frame.Draggable = false -- отключаем стандартное перетаскивание
+local frameCorner = Instance.new("UICorner", frame)
+frameCorner.CornerRadius = UDim.new(0, 16)
 
 -- Title bar with close button
 local titleBar = Instance.new("Frame", frame)
 titleBar.Size = UDim2.new(1, 0, 0, 30)
 titleBar.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 titleBar.BorderSizePixel = 0
+-- Кастомное перетаскивание окна по заголовку
+local dragging = false
+local dragStart, startPos
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+    end
+end)
+titleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+local titleBarCorner = Instance.new("UICorner", titleBar)
+titleBarCorner.CornerRadius = UDim.new(0, 12)
 
-local title = Instance.new("TextLabel", titleBar)
-title.Size = UDim2.new(1, -30, 1, 0)
-title.Text = "SCP Teleport v2.0"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.BackgroundTransparency = 1
-title.Font = Enum.Font.SourceSansBold
-title.TextSize = 18
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Position = UDim2.new(0, 5, 0, 0)
+-- Обычный белый заголовок "SCP Teleport .0"
+local titleWhite = Instance.new("TextLabel", titleBar)
+titleWhite.Size = UDim2.new(1, -30, 1, 0)
+titleWhite.Position = UDim2.new(0, 5, 0, 0)
+titleWhite.BackgroundTransparency = 1
+titleWhite.Font = Enum.Font.SourceSansBold
+titleWhite.TextSize = 18
+titleWhite.TextXAlignment = Enum.TextXAlignment.Left
+titleWhite.Text = "SCP Teleport v2.4"
+titleWhite.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleWhite.Name = "TitleWhite"
 
 -- Кнопка закрытия
 local closeBtn = Instance.new("TextButton", titleBar)
@@ -162,17 +199,26 @@ closeBtn.TextSize = 18
 closeBtn.MouseButton1Click:Connect(function()
     gui:Destroy()
 end)
+local closeBtnCorner = Instance.new("UICorner", closeBtn)
+closeBtnCorner.CornerRadius = UDim.new(0, 8)
 
 local scroll = Instance.new("ScrollingFrame", frame)
 scroll.Size = UDim2.new(1, 0, 1, -30)
 scroll.Position = UDim2.new(0, 0, 0, 30)
 scroll.BackgroundTransparency = 1
 scroll.ScrollBarThickness = 6
+local scrollCorner = Instance.new("UICorner", scroll)
+scrollCorner.CornerRadius = UDim.new(0, 12)
 
 local list = Instance.new("UIListLayout", scroll)
 list.Padding = UDim.new(0, 5)
 
 -- Создание кнопок в порядке сортировки по номеру
+-- Сортируем список объектов по номеру
+table.sort(sortedNames, function(a, b)
+    return a.num < b.num
+end)
+
 for _, item in ipairs(sortedNames) do
     local name = item.name
     local pos = LOCATIONS[name].pos
@@ -184,11 +230,36 @@ for _, item in ipairs(sortedNames) do
     button.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
     button.Font = Enum.Font.SourceSans
     button.TextSize = 16
-    
     button.MouseButton1Click:Connect(function()
         smoothTeleport(pos + Vector3.new(0, 1.5, 0))
     end)
+    local buttonCorner = Instance.new("UICorner", button)
+    buttonCorner.CornerRadius = UDim.new(0, 10)
 end
+
+-- Кнопка "Freeze & Unfreeze" для взятия предмета
+local freezeBtn = Instance.new("TextButton", scroll)
+freezeBtn.Size = UDim2.new(0.95, 0, 0, 40)
+freezeBtn.Position = UDim2.new(0.025, 0, 0, 0)
+freezeBtn.Text = "FAST SCP 403"
+freezeBtn.TextColor3 = Color3.new(1, 1, 1)
+freezeBtn.BackgroundColor3 = Color3.fromRGB(70, 50, 50)
+freezeBtn.Font = Enum.Font.SourceSansBold
+freezeBtn.TextSize = 16
+freezeBtn.MouseButton1Click:Connect(function()
+    local targetCFrame = CFrame.new(1.52, 5.50, 616.29) -- координаты камеры
+    local initialFreezeTime = 1.5 -- время первоначальной фиксации
+    local postFreezeTime = 3 -- время после разморозки для взятия предмета
+    hrp.CFrame = targetCFrame
+    hrp.Anchored = true
+    print("[INFO] Персонаж зафиксирован. Ждем "..initialFreezeTime.." секунд...")
+    task.wait(initialFreezeTime)
+    hrp.Anchored = false
+    print("[INFO] Персонаж разморожен, можно брать предмет.")
+    task.wait(postFreezeTime)
+end)
+local freezeBtnCorner = Instance.new("UICorner", freezeBtn)
+freezeBtnCorner.CornerRadius = UDim.new(0, 10)
 
 -- Авторазмер контента
 list:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
@@ -201,3 +272,5 @@ player.CharacterAdded:Connect(function(newChar)
     hrp = newChar:WaitForChild("HumanoidRootPart")
     humanoid = newChar:WaitForChild("Humanoid")
 end)
+
+-- ...existing code...
