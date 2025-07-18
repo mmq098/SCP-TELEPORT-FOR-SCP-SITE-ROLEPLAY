@@ -7,8 +7,13 @@ local hrp = char:WaitForChild("HumanoidRootPart")
 local humanoid = char:WaitForChild("Humanoid")
 
 -- Настройки
+local flySpeed = 60
+local flyEnabled = false
 local WALK_SPEED = humanoid.WalkSpeed
-local TELEPORT_SPEED = WALK_SPEED * 2
+-- TELEPORT_SPEED теперь вычисляется динамически через flySpeed
+local function getTeleportSpeed()
+    return flySpeed
+end
 local UNDERGROUND_OFFSET = 7
 
 -- Обновленный список точек телепорта с номерами для сортировки
@@ -91,7 +96,7 @@ local function smoothTeleport(destination)
     end
     
     local distance = (destination - startPos).Magnitude
-    local duration = distance / TELEPORT_SPEED
+    local duration = distance / getTeleportSpeed()
     local startTime = os.clock()
 
     local finished = false
@@ -266,11 +271,227 @@ list:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     scroll.CanvasSize = UDim2.new(0, 0, 0, list.AbsoluteContentSize.Y + 10)
 end)
 
+-- === Вкладка "Настройки" и панель настроек ===
+
+
+-- Кнопка "Настройки" рядом с кнопкой закрытия
+local settingsTab = Instance.new("TextButton", titleBar)
+settingsTab.Size = UDim2.new(0, 90, 1, 0)
+settingsTab.Position = UDim2.new(1, -120, 0, 0)
+settingsTab.Text = "Настройки"
+settingsTab.TextColor3 = Color3.fromRGB(180, 200, 255)
+settingsTab.BackgroundTransparency = 1
+settingsTab.Font = Enum.Font.SourceSansBold
+settingsTab.TextSize = 16
+local settingsTabCorner = Instance.new("UICorner", settingsTab)
+settingsTabCorner.CornerRadius = UDim.new(0, 8)
+
+-- Панель настроек (отдельный слой, поверх основного меню)
+local settingsPanel = Instance.new("Frame", gui)
+settingsPanel.Size = UDim2.new(0, 320, 0, 260)
+settingsPanel.Position = UDim2.new(0.5, -160, 0.5, -130)
+settingsPanel.BackgroundColor3 = Color3.fromRGB(36, 40, 60)
+settingsPanel.Visible = false
+settingsPanel.ZIndex = 10
+local settingsPanelCorner = Instance.new("UICorner", settingsPanel)
+settingsPanelCorner.CornerRadius = UDim.new(0, 18)
+
+-- Заголовок панели
+local titleLabel = Instance.new("TextLabel", settingsPanel)
+titleLabel.Size = UDim2.new(1, 0, 0, 38)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextSize = 22
+titleLabel.Text = "Настройки телепортации"
+titleLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
+titleLabel.ZIndex = 11
+
+-- Поле для ввода скорости полёта
+
+-- Ползунок для выбора скорости
+local speedLabel = Instance.new("TextLabel", settingsPanel)
+speedLabel.Size = UDim2.new(0, 120, 0, 28)
+speedLabel.Position = UDim2.new(0, 20, 0, 60)
+speedLabel.BackgroundTransparency = 1
+speedLabel.Font = Enum.Font.SourceSans
+speedLabel.TextSize = 16
+speedLabel.Text = "Скорость полёта:"
+speedLabel.TextColor3 = Color3.fromRGB(180, 200, 255)
+speedLabel.ZIndex = 11
+
+
+local sliderFrame = Instance.new("Frame", settingsPanel)
+sliderFrame.Size = UDim2.new(0, 160, 0, 18)
+sliderFrame.Position = UDim2.new(0, 150, 0, 66)
+sliderFrame.BackgroundTransparency = 1
+sliderFrame.ZIndex = 12
+
+local sliderBar = Instance.new("Frame", sliderFrame)
+sliderBar.Size = UDim2.new(1, 0, 0, 6)
+sliderBar.Position = UDim2.new(0, 0, 0.5, -3)
+sliderBar.BackgroundColor3 = Color3.fromRGB(80, 90, 120)
+sliderBar.ZIndex = 13
+local sliderBarCorner = Instance.new("UICorner", sliderBar)
+sliderBarCorner.CornerRadius = UDim.new(0, 3)
+
+local sliderKnob = Instance.new("Frame", sliderFrame)
+sliderKnob.Size = UDim2.new(0, 18, 0, 18)
+sliderKnob.Position = UDim2.new((flySpeed-1)/99, -9, 0.5, -9)
+sliderKnob.BackgroundColor3 = Color3.fromRGB(120, 160, 255)
+sliderKnob.ZIndex = 14
+local sliderKnobCorner = Instance.new("UICorner", sliderKnob)
+sliderKnobCorner.CornerRadius = UDim.new(1, 0)
+
+local valueLabel = Instance.new("TextLabel", settingsPanel)
+valueLabel.Size = UDim2.new(0, 36, 0, 28)
+valueLabel.Position = UDim2.new(0, 320-36-20, 0, 38) -- выше ползунка
+valueLabel.BackgroundTransparency = 1
+valueLabel.Font = Enum.Font.SourceSansBold
+valueLabel.TextSize = 16
+valueLabel.Text = tostring(flySpeed)
+valueLabel.TextColor3 = Color3.fromRGB(220, 255, 220)
+valueLabel.ZIndex = 13
+
+local draggingSlider = false
+
+local function setSliderValue(val)
+    flySpeed = math.clamp(math.floor(val+0.5), 1, 100)
+    sliderKnob.Position = UDim2.new((flySpeed-1)/99, -9, 0.5, -9)
+    valueLabel.Text = tostring(flySpeed)
+end
+
+setSliderValue(flySpeed)
+
+sliderKnob.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        draggingSlider = true
+    end
+end)
+sliderKnob.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        draggingSlider = false
+    end
+end)
+sliderFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        draggingSlider = true
+        local x = input.Position.X - sliderFrame.AbsolutePosition.X
+        local percent = math.clamp(x / sliderFrame.AbsoluteSize.X, 0, 1)
+        setSliderValue(1 + percent * 99)
+    end
+end)
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local x = input.Position.X - sliderFrame.AbsolutePosition.X
+        local percent = math.clamp(x / sliderFrame.AbsoluteSize.X, 0, 1)
+        setSliderValue(1 + percent * 99)
+    end
+end)
+game:GetService("UserInputService").InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        draggingSlider = false
+    end
+end)
+
+-- Toggle-кнопка для полёта
+local toggleBtn = Instance.new("TextButton", settingsPanel)
+toggleBtn.Size = UDim2.new(0, 180, 0, 36)
+toggleBtn.Position = UDim2.new(0, 20, 0, 110)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 90, 60)
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.TextSize = 18
+toggleBtn.TextColor3 = Color3.fromRGB(220, 255, 220)
+toggleBtn.ZIndex = 11
+local function updateToggleBtn()
+    toggleBtn.Text = flyEnabled and "Полёт: ВКЛ" or "Полёт: ВЫКЛ"
+    toggleBtn.BackgroundColor3 = flyEnabled and Color3.fromRGB(60, 120, 60) or Color3.fromRGB(90, 60, 60)
+end
+updateToggleBtn()
+local toggleBtnCorner = Instance.new("UICorner", toggleBtn)
+toggleBtnCorner.CornerRadius = UDim.new(0, 10)
+
+toggleBtn.MouseButton1Click:Connect(function()
+    flyEnabled = not flyEnabled
+    updateToggleBtn()
+end)
+
+-- Кнопка "Сохранить"
+local saveBtn = Instance.new("TextButton", settingsPanel)
+saveBtn.Size = UDim2.new(0, 120, 0, 36)
+saveBtn.Position = UDim2.new(0, 20, 0, 170)
+saveBtn.BackgroundColor3 = Color3.fromRGB(60, 70, 120)
+saveBtn.Font = Enum.Font.SourceSansBold
+saveBtn.TextSize = 18
+saveBtn.Text = "Сохранить"
+saveBtn.TextColor3 = Color3.fromRGB(220, 220, 255)
+saveBtn.ZIndex = 11
+local saveBtnCorner = Instance.new("UICorner", saveBtn)
+saveBtnCorner.CornerRadius = UDim.new(0, 10)
+
+saveBtn.MouseButton1Click:Connect(function()
+    saveBtn.Text = "Сохранено!"
+    task.wait(0.7)
+    saveBtn.Text = "Сохранить"
+end)
+
+-- Кнопка "Назад" (закрыть настройки)
+local backBtn = Instance.new("TextButton", settingsPanel)
+backBtn.Size = UDim2.new(0, 80, 0, 32)
+backBtn.Position = UDim2.new(1, -100, 1, -44)
+backBtn.BackgroundColor3 = Color3.fromRGB(50, 60, 90)
+backBtn.Font = Enum.Font.SourceSans
+backBtn.TextSize = 16
+backBtn.Text = "Назад"
+backBtn.TextColor3 = Color3.fromRGB(200, 220, 255)
+backBtn.ZIndex = 11
+local backBtnCorner = Instance.new("UICorner", backBtn)
+backBtnCorner.CornerRadius = UDim.new(0, 8)
+backBtn.MouseButton1Click:Connect(function()
+    settingsPanel.Visible = false
+    frame.Visible = true
+end)
+
+-- Открытие панели настроек по кнопке
+settingsTab.MouseButton1Click:Connect(function()
+    settingsPanel.Visible = true
+    frame.Visible = false
+end)
+
+-- Гарантируем видимость всех элементов панели
+for _, v in ipairs(settingsPanel:GetChildren()) do
+    if v:IsA("GuiObject") then v.ZIndex = 11 end
+end
+
 -- Обработчик смерти персонажа
 player.CharacterAdded:Connect(function(newChar)
     char = newChar
     hrp = newChar:WaitForChild("HumanoidRootPart")
     humanoid = newChar:WaitForChild("Humanoid")
+end)
+
+-- === Реализация полёта (простая) ===
+local flyConn
+RunService.RenderStepped:Connect(function()
+    if flyEnabled and char and hrp and humanoid and humanoid.Health > 0 then
+        local moveDir = Vector3.new(0, 0, 0)
+        local uis = game:GetService("UserInputService")
+        if uis:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + workspace.CurrentCamera.CFrame.LookVector end
+        if uis:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - workspace.CurrentCamera.CFrame.LookVector end
+        if uis:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - workspace.CurrentCamera.CFrame.RightVector end
+        if uis:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + workspace.CurrentCamera.CFrame.RightVector end
+        if uis:IsKeyDown(Enum.KeyCode.Space) then moveDir = moveDir + Vector3.new(0, 1, 0) end
+        if uis:IsKeyDown(Enum.KeyCode.LeftControl) then moveDir = moveDir - Vector3.new(0, 1, 0) end
+        if moveDir.Magnitude > 0 then
+            hrp.Velocity = moveDir.Unit * flySpeed
+        else
+            hrp.Velocity = Vector3.new(0, 0, 0)
+        end
+        humanoid.PlatformStand = true
+    elseif humanoid and humanoid.PlatformStand then
+        humanoid.PlatformStand = false
+        hrp.Velocity = Vector3.new(0, 0, 0)
+    end
 end)
 
 -- ...existing code...
