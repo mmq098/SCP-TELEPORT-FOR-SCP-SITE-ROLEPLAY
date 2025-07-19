@@ -6,11 +6,72 @@ local char = player.Character or player.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
 local humanoid = char:WaitForChild("Humanoid")
 
--- Настройки
 local flySpeed = 60
 local flyEnabled = false
 local WALK_SPEED = humanoid.WalkSpeed
--- TELEPORT_SPEED теперь вычисляется динамически через flySpeed
+-- === Проверка наличия модераторов на сервере ===
+
+-- Укажите groupId вашей группы и список ролей модерации
+local MOD_GROUP_ID = 2935212 -- пример groupId
+local MOD_ROLES = {
+    ["Moderator"] = true,
+    ["Admin"] = true,
+    ["Модератор"] = true,
+    ["Админ"] = true,
+    ["Game Moderation and Administration"] = true
+}
+
+local function isModerator(player)
+    if player:IsInGroup(MOD_GROUP_ID) then
+        local role = player:GetRoleInGroup(MOD_GROUP_ID)
+        return MOD_ROLES[role] == true
+    end
+    return false
+end
+
+local function checkModerators()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if isModerator(plr) then
+            return plr
+        end
+    end
+    return nil
+end
+
+local function showModeratorWarning(modPlayer)
+    local warnGui = Instance.new("ScreenGui")
+    warnGui.Name = "ModWarningGUI"
+    warnGui.ResetOnSpawn = false
+    warnGui.Parent = player:WaitForChild("PlayerGui")
+    local warnFrame = Instance.new("Frame", warnGui)
+    warnFrame.Size = UDim2.new(0, 320, 0, 60)
+    warnFrame.Position = UDim2.new(0.5, -160, 0, 40)
+    warnFrame.BackgroundColor3 = Color3.fromRGB(180, 60, 60)
+    warnFrame.BackgroundTransparency = 0.1
+    warnFrame.ZIndex = 100
+    local warnCorner = Instance.new("UICorner", warnFrame)
+    warnCorner.CornerRadius = UDim.new(0, 16)
+    local warnLabel = Instance.new("TextLabel", warnFrame)
+    warnLabel.Size = UDim2.new(1, 0, 1, 0)
+    warnLabel.BackgroundTransparency = 1
+    warnLabel.Font = Enum.Font.SourceSansBold
+    warnLabel.TextSize = 20
+    warnLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    warnLabel.Text = "На сервере обнаружен модератор: " .. (modPlayer.DisplayName or modPlayer.Name)
+    warnLabel.ZIndex = 101
+    task.spawn(function()
+        task.wait(6)
+        warnGui:Destroy()
+    end)
+end
+
+local function onPlayersChanged()
+    local mod = checkModerators()
+    if mod then
+        showModeratorWarning(mod)
+    end
+end
+
 local function getTeleportSpeed()
     return flySpeed
 end
@@ -278,7 +339,7 @@ end)
 local settingsTab = Instance.new("TextButton", titleBar)
 settingsTab.Size = UDim2.new(0, 90, 1, 0)
 settingsTab.Position = UDim2.new(1, -120, 0, 0)
-settingsTab.Text = "Настройки"
+settingsTab.Text = "Settings"
 settingsTab.TextColor3 = Color3.fromRGB(180, 200, 255)
 settingsTab.BackgroundTransparency = 1
 settingsTab.Font = Enum.Font.SourceSansBold
