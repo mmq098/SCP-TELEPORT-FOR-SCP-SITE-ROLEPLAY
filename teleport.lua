@@ -368,9 +368,7 @@ titleLabel.Text = "Настройки телепортации"
 titleLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
 titleLabel.ZIndex = 11
 
--- Поле для ввода скорости полёта
-
--- Ползунок для выбора скорости
+-- Ползунок для скорости полёта
 local speedLabel = Instance.new("TextLabel", settingsPanel)
 speedLabel.Size = UDim2.new(0, 120, 0, 28)
 speedLabel.Position = UDim2.new(0, 20, 0, 60)
@@ -379,103 +377,181 @@ speedLabel.Font = Enum.Font.SourceSans
 speedLabel.TextSize = 16
 speedLabel.Text = "Скорость полёта:"
 speedLabel.TextColor3 = Color3.fromRGB(180, 200, 255)
-speedLabel.ZIndex = 11
+speedLabel.ZIndex = 12
 
+local speedSliderFrame = Instance.new("Frame", settingsPanel)
+speedSliderFrame.Size = UDim2.new(0, 160, 0, 18)
+speedSliderFrame.Position = UDim2.new(0, 150, 0, 66)
+speedSliderFrame.BackgroundTransparency = 1
+speedSliderFrame.ZIndex = 13
 
-local sliderFrame = Instance.new("Frame", settingsPanel)
-sliderFrame.Size = UDim2.new(0, 160, 0, 18)
-sliderFrame.Position = UDim2.new(0, 150, 0, 66)
-sliderFrame.BackgroundTransparency = 1
-sliderFrame.ZIndex = 12
+local speedSliderBar = Instance.new("Frame", speedSliderFrame)
+speedSliderBar.Size = UDim2.new(1, 0, 0, 6)
+speedSliderBar.Position = UDim2.new(0, 0, 0.5, -3)
+speedSliderBar.BackgroundColor3 = Color3.fromRGB(80, 90, 120)
+speedSliderBar.ZIndex = 14
+local speedSliderBarCorner = Instance.new("UICorner", speedSliderBar)
+speedSliderBarCorner.CornerRadius = UDim.new(0, 3)
 
-local sliderBar = Instance.new("Frame", sliderFrame)
-sliderBar.Size = UDim2.new(1, 0, 0, 6)
-sliderBar.Position = UDim2.new(0, 0, 0.5, -3)
-sliderBar.BackgroundColor3 = Color3.fromRGB(80, 90, 120)
-sliderBar.ZIndex = 13
-local sliderBarCorner = Instance.new("UICorner", sliderBar)
-sliderBarCorner.CornerRadius = UDim.new(0, 3)
+local speedSliderKnob = Instance.new("Frame", speedSliderFrame)
+speedSliderKnob.Size = UDim2.new(0, 18, 0, 18)
+speedSliderKnob.Position = UDim2.new((flySpeed-1)/99, -9, 0.5, -9)
+speedSliderKnob.BackgroundColor3 = Color3.fromRGB(120, 160, 255)
+speedSliderKnob.ZIndex = 15
+local speedSliderKnobCorner = Instance.new("UICorner", speedSliderKnob)
+speedSliderKnobCorner.CornerRadius = UDim.new(1, 0)
 
-local sliderKnob = Instance.new("Frame", sliderFrame)
-sliderKnob.Size = UDim2.new(0, 18, 0, 18)
-sliderKnob.Position = UDim2.new((flySpeed-1)/99, -9, 0.5, -9)
-sliderKnob.BackgroundColor3 = Color3.fromRGB(120, 160, 255)
-sliderKnob.ZIndex = 14
-local sliderKnobCorner = Instance.new("UICorner", sliderKnob)
-sliderKnobCorner.CornerRadius = UDim.new(1, 0)
+local speedValueLabel = Instance.new("TextLabel", settingsPanel)
+speedValueLabel.Size = UDim2.new(0, 48, 0, 20)
+speedValueLabel.Position = UDim2.new(0, 320-48-20, 0, 52) -- выше ползунка
+speedValueLabel.BackgroundTransparency = 1
+speedValueLabel.Font = Enum.Font.SourceSansBold
+speedValueLabel.TextSize = 16
+speedValueLabel.Text = tostring(flySpeed)
+speedValueLabel.TextColor3 = Color3.fromRGB(220, 255, 220)
+speedValueLabel.ZIndex = 16
 
-local valueLabel = Instance.new("TextLabel", settingsPanel)
-valueLabel.Size = UDim2.new(0, 36, 0, 28)
-valueLabel.Position = UDim2.new(0, 320-36-20, 0, 38) -- выше ползунка
-valueLabel.BackgroundTransparency = 1
-valueLabel.Font = Enum.Font.SourceSansBold
-valueLabel.TextSize = 16
-valueLabel.Text = tostring(flySpeed)
-valueLabel.TextColor3 = Color3.fromRGB(220, 255, 220)
-valueLabel.ZIndex = 13
+local draggingSpeedSlider = false
 
-local draggingSlider = false
-
-local function setSliderValue(val)
+local function setSpeedSliderValue(val)
     flySpeed = math.clamp(math.floor(val+0.5), 1, 100)
-    sliderKnob.Position = UDim2.new((flySpeed-1)/99, -9, 0.5, -9)
-    valueLabel.Text = tostring(flySpeed)
+    speedSliderKnob.Position = UDim2.new((flySpeed-1)/99, -9, 0.5, -9)
+    speedValueLabel.Text = tostring(flySpeed)
 end
 
-setSliderValue(flySpeed)
+setSpeedSliderValue(flySpeed)
 
-sliderKnob.InputBegan:Connect(function(input)
+speedSliderKnob.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        draggingSlider = true
+        draggingSpeedSlider = true
     end
 end)
-sliderKnob.InputEnded:Connect(function(input)
+speedSliderKnob.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        draggingSlider = false
+        draggingSpeedSlider = false
     end
 end)
-sliderFrame.InputBegan:Connect(function(input)
+speedSliderFrame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        draggingSlider = true
-        local x = input.Position.X - sliderFrame.AbsolutePosition.X
-        local percent = math.clamp(x / sliderFrame.AbsoluteSize.X, 0, 1)
-        setSliderValue(1 + percent * 99)
+        draggingSpeedSlider = true
+        local x = input.Position.X - speedSliderFrame.AbsolutePosition.X
+        local percent = math.clamp(x / speedSliderFrame.AbsoluteSize.X, 0, 1)
+        setSpeedSliderValue(1 + percent * 99)
     end
 end)
 game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local x = input.Position.X - sliderFrame.AbsolutePosition.X
-        local percent = math.clamp(x / sliderFrame.AbsoluteSize.X, 0, 1)
-        setSliderValue(1 + percent * 99)
+    if draggingSpeedSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local x = input.Position.X - speedSliderFrame.AbsolutePosition.X
+        local percent = math.clamp(x / speedSliderFrame.AbsoluteSize.X, 0, 1)
+        setSpeedSliderValue(1 + percent * 99)
     end
 end)
 game:GetService("UserInputService").InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        draggingSlider = false
+        draggingSpeedSlider = false
     end
 end)
 
--- Toggle-кнопка для полёта
-local toggleBtn = Instance.new("TextButton", settingsPanel)
-toggleBtn.Size = UDim2.new(0, 180, 0, 36)
-toggleBtn.Position = UDim2.new(0, 20, 0, 110)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 90, 60)
-toggleBtn.Font = Enum.Font.SourceSansBold
-toggleBtn.TextSize = 18
-toggleBtn.TextColor3 = Color3.fromRGB(220, 255, 220)
-toggleBtn.ZIndex = 11
-local function updateToggleBtn()
-    toggleBtn.Text = flyEnabled and "Полёт: ВКЛ" or "Полёт: ВЫКЛ"
-    toggleBtn.BackgroundColor3 = flyEnabled and Color3.fromRGB(60, 120, 60) or Color3.fromRGB(90, 60, 60)
-end
-updateToggleBtn()
-local toggleBtnCorner = Instance.new("UICorner", toggleBtn)
-toggleBtnCorner.CornerRadius = UDim.new(0, 10)
+-- Ползунок для FOV (ниже)
+local fovLabel = Instance.new("TextLabel", settingsPanel)
+fovLabel.Size = UDim2.new(0, 120, 0, 28)
+fovLabel.Position = UDim2.new(0, 20, 0, 100)
+fovLabel.BackgroundTransparency = 1
+fovLabel.Font = Enum.Font.SourceSans
+fovLabel.TextSize = 16
+fovLabel.Text = "FOV камеры:"
+fovLabel.TextColor3 = Color3.fromRGB(180, 200, 255)
+fovLabel.ZIndex = 12
 
-toggleBtn.MouseButton1Click:Connect(function()
-    flyEnabled = not flyEnabled
-    updateToggleBtn()
+local fovSliderFrame = Instance.new("Frame", settingsPanel)
+fovSliderFrame.Size = UDim2.new(0, 160, 0, 18)
+fovSliderFrame.Position = UDim2.new(0, 150, 0, 106)
+fovSliderFrame.BackgroundTransparency = 1
+fovSliderFrame.ZIndex = 13
+
+local fovSliderBar = Instance.new("Frame", fovSliderFrame)
+fovSliderBar.Size = UDim2.new(1, 0, 0, 6)
+fovSliderBar.Position = UDim2.new(0, 0, 0.5, -3)
+fovSliderBar.BackgroundColor3 = Color3.fromRGB(80, 90, 120)
+fovSliderBar.ZIndex = 14
+local fovSliderBarCorner = Instance.new("UICorner", fovSliderBar)
+fovSliderBarCorner.CornerRadius = UDim.new(0, 3)
+
+local fovSliderKnob = Instance.new("Frame", fovSliderFrame)
+fovSliderKnob.Size = UDim2.new(0, 18, 0, 18)
+fovSliderKnob.Position = UDim2.new((workspace.CurrentCamera.FieldOfView-40)/80, -9, 0.5, -9)
+fovSliderKnob.BackgroundColor3 = Color3.fromRGB(120, 160, 255)
+fovSliderKnob.ZIndex = 15
+local fovSliderKnobCorner = Instance.new("UICorner", fovSliderKnob)
+fovSliderKnobCorner.CornerRadius = UDim.new(1, 0)
+
+local fovValueLabel = Instance.new("TextLabel", settingsPanel)
+fovValueLabel.Size = UDim2.new(0, 48, 0, 20)
+fovValueLabel.Position = UDim2.new(0, 320-48-20, 0, 92) -- выше ползунка
+fovValueLabel.BackgroundTransparency = 1
+fovValueLabel.Font = Enum.Font.SourceSansBold
+fovValueLabel.TextSize = 16
+fovValueLabel.Text = tostring(math.floor(workspace.CurrentCamera.FieldOfView))
+fovValueLabel.TextColor3 = Color3.fromRGB(220, 255, 220)
+fovValueLabel.ZIndex = 16
+
+local draggingFovSlider = false
+
+-- Фиксация FOV: запрещаем серверу и другим скриптам менять FOV
+local userFov = workspace.CurrentCamera.FieldOfView
+
+-- Следим за изменением FOV и возвращаем пользовательское значение
+workspace.CurrentCamera:GetPropertyChangedSignal("FieldOfView"):Connect(function()
+    if math.abs(workspace.CurrentCamera.FieldOfView - userFov) > 0.1 then
+        workspace.CurrentCamera.FieldOfView = userFov
+    end
 end)
+
+-- Обновляем userFov при изменении слайдера
+local function setFovSliderValue(val)
+    local fov = math.clamp(math.floor(val+0.5), 40, 120)
+    userFov = fov
+    workspace.CurrentCamera.FieldOfView = fov
+    fovSliderKnob.Position = UDim2.new((fov-40)/80, -9, 0.5, -9)
+    fovValueLabel.Text = tostring(fov)
+end
+
+
+setFovSliderValue(workspace.CurrentCamera.FieldOfView)
+
+fovSliderKnob.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        draggingFovSlider = true
+    end
+end)
+fovSliderKnob.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        draggingFovSlider = false
+    end
+end)
+fovSliderFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        draggingFovSlider = true
+        local x = input.Position.X - fovSliderFrame.AbsolutePosition.X
+        local percent = math.clamp(x / fovSliderFrame.AbsoluteSize.X, 0, 1)
+        setFovSliderValue(40 + percent * 80)
+    end
+end)
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if draggingFovSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local x = input.Position.X - fovSliderFrame.AbsolutePosition.X
+        local percent = math.clamp(x / fovSliderFrame.AbsoluteSize.X, 0, 1)
+        setFovSliderValue(40 + percent * 80)
+    end
+end)
+game:GetService("UserInputService").InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        draggingFovSlider = false
+    end
+end)
+
+-- Поле для ввода скорости полёта
+
 
 -- Кнопка "Сохранить"
 local saveBtn = Instance.new("TextButton", settingsPanel)
