@@ -1,3 +1,7 @@
+-- ...existing code...
+
+-- ...existing code...
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
@@ -556,10 +560,26 @@ end)
 -- Поле для ввода скорости полёта
 
 
--- Кнопка "Сохранить"
+-- Кнопка запуска SubmergeGUI в настройках (теперь выше)
+local submergeBtn = Instance.new("TextButton", settingsPanel)
+submergeBtn.Size = UDim2.new(0, 180, 0, 36)
+submergeBtn.Position = UDim2.new(0, 20, 0, 170)
+submergeBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 180)
+submergeBtn.Font = Enum.Font.SourceSansBold
+submergeBtn.TextSize = 16
+submergeBtn.Text = "Submerge Menu"
+submergeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+submergeBtn.ZIndex = 12
+local submergeBtnCorner = Instance.new("UICorner", submergeBtn)
+submergeBtnCorner.CornerRadius = UDim.new(0, 10)
+submergeBtn.MouseButton1Click:Connect(function()
+    launchSubmergeGUI()
+end)
+
+-- Кнопка "Сохранить" (теперь ниже)
 local saveBtn = Instance.new("TextButton", settingsPanel)
 saveBtn.Size = UDim2.new(0, 120, 0, 36)
-saveBtn.Position = UDim2.new(0, 20, 0, 170)
+saveBtn.Position = UDim2.new(0, 20, 0, 210)
 saveBtn.BackgroundColor3 = Color3.fromRGB(60, 70, 120)
 saveBtn.Font = Enum.Font.SourceSansBold
 saveBtn.TextSize = 18
@@ -568,8 +588,6 @@ saveBtn.TextColor3 = Color3.fromRGB(220, 220, 255)
 saveBtn.ZIndex = 11
 local saveBtnCorner = Instance.new("UICorner", saveBtn)
 saveBtnCorner.CornerRadius = UDim.new(0, 10)
-
-
 
 saveBtn.MouseButton1Click:Connect(function()
     saveBtn.Text = "Сохранено!"
@@ -793,19 +811,3 @@ local function launchSubmergeGUI()
         animationToggleButton.Position = playerData.animationButtonPosition
     end)
 end
-
--- Кнопка запуска SubmergeGUI в настройках
-local submergeBtn = Instance.new("TextButton", settingsPanel)
-submergeBtn.Size = UDim2.new(0, 180, 0, 36)
-submergeBtn.Position = UDim2.new(0, 20, 0, 210)
-submergeBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 180)
-submergeBtn.Font = Enum.Font.SourceSansBold
-submergeBtn.TextSize = 16
-submergeBtn.Text = "Submerge Menu"
-submergeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-submergeBtn.ZIndex = 12
-local submergeBtnCorner = Instance.new("UICorner", submergeBtn)
-submergeBtnCorner.CornerRadius = UDim.new(0, 10)
-submergeBtn.MouseButton1Click:Connect(function()
-    launchSubmergeGUI()
-end)
