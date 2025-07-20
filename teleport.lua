@@ -84,6 +84,7 @@ local UNDERGROUND_OFFSET = 7
 local LOCATIONS = {
     ["SCP-008"] = {pos = Vector3.new(-133.11, 5.57, 845.59), num = 8},
     ["SCP-017"] = {pos = Vector3.new(420.84, 5.52, 1274.16), num = 17},
+    ["SCP-034"] = {pos = Vector3.new(-124.36, 5.57, 1134.73), num = 34},
     ["SCP-035"] = {pos = Vector3.new(-252.75, 5.57, 859.39), num = 35},
     ["SCP-087"] = {pos = Vector3.new(-128.73, 5.50, 712.92), num = 87},
     ["SCP-093"] = {pos = Vector3.new(-167.06, 5.57, 1047.45), num = 93},
