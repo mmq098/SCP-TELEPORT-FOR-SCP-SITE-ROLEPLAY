@@ -557,10 +557,42 @@ end)
 -- Поле для ввода скорости полёта
 
 
--- Кнопка запуска SubmergeGUI в настройках (теперь выше)
+
+
+-- Кнопка Fast gun среди мест для телепорта
+do
+    local fastGunBtn = Instance.new("TextButton", scroll)
+    fastGunBtn.Size = UDim2.new(0.95, 0, 0, 40)
+    fastGunBtn.Position = UDim2.new(0.025, 0, 0, 0)
+    fastGunBtn.Text = "Fast gun"
+    fastGunBtn.TextColor3 = Color3.new(1, 1, 1)
+    fastGunBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 180)
+    fastGunBtn.Font = Enum.Font.SourceSansBold
+    fastGunBtn.TextSize = 16
+    fastGunBtn.ZIndex = 12
+    local fastGunBtnCorner = Instance.new("UICorner", fastGunBtn)
+    fastGunBtnCorner.CornerRadius = UDim.new(0, 10)
+    fastGunBtn.MouseButton1Click:Connect(function()
+        local targetCFrame = CFrame.new(264.35, 49.23, 267.80)
+        local initialFreezeTime = 1.5
+        local postFreezeTime = 3
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        hrp.CFrame = targetCFrame
+        hrp.Anchored = true
+        print("[INFO] Персонаж зафиксирован. Ждем "..initialFreezeTime.." секунд...")
+        task.wait(initialFreezeTime)
+        hrp.Anchored = false
+        print("[INFO] Персонаж разморожен, можно брать предмет.")
+        task.wait(postFreezeTime)
+    end)
+end
+
+
+-- Кнопка запуска SubmergeGUI в настройках (выше кнопки Сохранить)
 local submergeBtn = Instance.new("TextButton", settingsPanel)
 submergeBtn.Size = UDim2.new(0, 180, 0, 36)
-submergeBtn.Position = UDim2.new(0, 20, 0, 170)
+submergeBtn.Position = UDim2.new(0, 20, 0, 160) -- выше кнопки Сохранить
 submergeBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 180)
 submergeBtn.Font = Enum.Font.SourceSansBold
 submergeBtn.TextSize = 16
@@ -808,3 +840,6 @@ local function launchSubmergeGUI()
         animationToggleButton.Position = playerData.animationButtonPosition
     end)
 end
+
+
+-- ...existing code...
