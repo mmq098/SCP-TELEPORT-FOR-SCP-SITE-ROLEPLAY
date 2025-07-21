@@ -83,11 +83,12 @@ local UNDERGROUND_OFFSET = 7
 -- Обновленный список точек телепорта с номерами для сортировки
 local LOCATIONS = {
     ["SCP-008"] = {pos = Vector3.new(-133.11, 5.57, 845.59), num = 8},
-    ["SCP-017"] = {pos = Vector3.new(420.84, 5.52, 1274.16), num = 17},
+    ["SCP-017"] = {pos = Vector3.new(540.68, 5.45, 1351.60), num = 17},
     ["SCP-034"] = {pos = Vector3.new(-124.36, 5.57, 1134.73), num = 34},
     ["SCP-035"] = {pos = Vector3.new(-252.75, 5.57, 859.39), num = 35},
     ["SCP-049"] = {pos = Vector3.new(387.36, 5.57, 708.16), num = 49},
     ["SCP-087"] = {pos = Vector3.new(-128.73, 5.50, 712.92), num = 87},
+    ["SCP-076"] = {pos = Vector3.new(1226.84, -221.18, 1576.31), num = 91},
     ["SCP-093"] = {pos = Vector3.new(-167.06, 5.57, 1047.45), num = 93},
     ["SCP-096"] = {pos = Vector3.new(1525.80, -189.15, 974.98), num = 96},
     ["SCP-106"] = {pos = Vector3.new(1127.61, -224.65, 783.97), num = 106},
@@ -104,11 +105,13 @@ local LOCATIONS = {
     ["SCP-457"] = {pos = Vector3.new(190.71, 5.65, 1175.12), num = 457},
     ["SCP-517"] = {pos = Vector3.new(91.11, 5.50, 665.48), num = 517},
     ["SCP-569"] = {pos = Vector3.new(4.25, 5.57, 978.93), num = 569},
+    ["SCP-610"] = {pos = Vector3.new(1680.18, -201.93, 1260.38), num = 610},
     ["SCP-701"] = {pos = Vector3.new(-30.51, 15.57, 1199.67), num = 701},
     ["SCP-714"] = {pos = Vector3.new(-3.12, 5.50, 475.03), num = 714},
     ["SCP-860"] = {pos = Vector3.new(26.12, 5.50, 732.43), num = 860},
     ["SCP-914"] = {pos = Vector3.new(1.80, 5.50, 614.67), num = 914},
-    ["SCP-999"] = {pos = Vector3.new(-61.61, 5.50, 575.88), num = 999},
+    ["SCP-963"] = {pos = Vector3.new(63.67, -2.15, 250.23), num = 963},
+    ["SCP-999"] = {pos = Vector3.new(-40.69, 5.50, 679.53), num = 999},
     ["SCP-2521"] = {pos = Vector3.new(-24.32, 5.57, 1056.30), num = 0},
     ["SCP-1025"] = {pos = Vector3.new(10.60, 5.50, 638.69), num = 1025},
     ["SCP-1056"] = {pos = Vector3.new(-146.83, 5.50, 644.00), num = 1056},
@@ -123,7 +126,7 @@ local LOCATIONS = {
     ["Pocket Dimension"] = {pos = Vector3.new(5792.15, 2.50, 5520.05), num = 9997},
     ["Cont X"] = {pos = Vector3.new(432.37, 5.57, 1024.40), num = 9996},
     ["Nuke"] = {pos = Vector3.new(525.98, 5.65, 1023.73), num = 9995},
-    ["Reality Cire"] = {pos = Vector3.new(658.00, 5.57, 1024.07), num = 9996},
+    ["Reality Core"] = {pos = Vector3.new(658.00, 5.57, 1024.07), num = 9996},
     ["Pumps"] = {pos = Vector3.new(-407.21, 4.31, 210.67), num = 9994},
     ["Arsenal"] = {pos = Vector3.new(91.89, 5.64, 475.40), num = 9993},
     ["Arsenal 2"] = {pos = Vector3.new(-40.87, 5.62, 811.13), num = 9992}
@@ -636,10 +639,13 @@ local function launchSubmergeGUI()
     local savedSubmergePosition = nil
     local animationPlaying = false
     local animationToggleButton = nil
-    local playerData = {
-        buttonPosition = UDim2.new(1, -175, 0.5, -100),
-        animationButtonPosition = UDim2.new(1, -175, 0.5, -40)
-    }
+    -- Глобальные переменные для хранения позиции кнопок между смертями
+    if not _G.submergeButtonPosition then
+        _G.submergeButtonPosition = UDim2.new(0, 10, 0, 10)
+    end
+    if not _G.armUpButtonPosition then
+        _G.armUpButtonPosition = UDim2.new(0, 10, 0, 64)
+    end
     local animation = Instance.new("Animation")
     animation.AnimationId = "rbxassetid://536135263"
     local animator = humanoid:WaitForChild("Animator")
@@ -691,7 +697,7 @@ local function launchSubmergeGUI()
     submergeBtn.Name = "SubmergeButton"
     submergeBtn.Parent = submergeMenu
     submergeBtn.Size = UDim2.new(1, -20, 0, 44)
-    submergeBtn.Position = UDim2.new(0, 10, 0, 10)
+    submergeBtn.Position = _G.submergeButtonPosition
     submergeBtn.AnchorPoint = Vector2.new(0, 0)
     submergeBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 180)
     submergeBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -713,7 +719,7 @@ local function launchSubmergeGUI()
     armUpBtn.Name = "ArmUpButton"
     armUpBtn.Parent = submergeMenu
     armUpBtn.Size = UDim2.new(1, -20, 0, 44)
-    armUpBtn.Position = UDim2.new(0, 10, 0, 64)
+    armUpBtn.Position = _G.armUpButtonPosition
     armUpBtn.AnchorPoint = Vector2.new(0, 0)
     armUpBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
     armUpBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -807,10 +813,10 @@ local function launchSubmergeGUI()
     end)
     armUpBtn.MouseButton1Click:Connect(toggleArmUp)
     submergeBtn:GetPropertyChangedSignal("Position"):Connect(function()
-        playerData.buttonPosition = submergeBtn.Position
+        _G.submergeButtonPosition = submergeBtn.Position
     end)
     armUpBtn:GetPropertyChangedSignal("Position"):Connect(function()
-        playerData.animationButtonPosition = armUpBtn.Position
+        _G.armUpButtonPosition = armUpBtn.Position
     end)
     game.Players.LocalPlayer.CharacterAdded:Connect(function()
         task.wait(0.01)
@@ -896,6 +902,14 @@ player.CharacterAdded:Connect(function(newChar)
     char = newChar
     hrp = newChar:WaitForChild("HumanoidRootPart")
     humanoid = newChar:WaitForChild("Humanoid")
+    -- Удаляем SubmergeGUI при смерти персонажа, чтобы не было наложения
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if playerGui then
+        local submergeGui = playerGui:FindFirstChild("SubmergeGUI")
+        if submergeGui then
+            submergeGui:Destroy()
+        end
+    end
 end)
 
 -- === Реализация полёта (простая) ===
