@@ -86,9 +86,11 @@ local LOCATIONS = {
     ["SCP-017"] = {pos = Vector3.new(420.84, 5.52, 1274.16), num = 17},
     ["SCP-034"] = {pos = Vector3.new(-124.36, 5.57, 1134.73), num = 34},
     ["SCP-035"] = {pos = Vector3.new(-252.75, 5.57, 859.39), num = 35},
+    ["SCP-049"] = {pos = Vector3.new(387.36, 5.57, 708.16), num = 49},
     ["SCP-087"] = {pos = Vector3.new(-128.73, 5.50, 712.92), num = 87},
     ["SCP-093"] = {pos = Vector3.new(-167.06, 5.57, 1047.45), num = 93},
-    ["SCP-106"] = {pos = Vector3.new(552.60, -142.10, 1816.60), num = 106},
+    ["SCP-096"] = {pos = Vector3.new(1525.80, -189.15, 974.98), num = 96},
+    ["SCP-106"] = {pos = Vector3.new(1127.61, -224.65, 783.97), num = 106},
     ["SCP-120"] = {pos = Vector3.new(-172.59, 5.50, 724.95), num = 120},
     ["SCP-173"] = {pos = Vector3.new(-157.62, 19.57, 940.96), num = 173},
     ["SCP-178"] = {pos = Vector3.new(-2.99, 5.50, 559.65), num = 178},
@@ -114,12 +116,14 @@ local LOCATIONS = {
     ["SCP-1162"] = {pos = Vector3.new(-117.31, 5.57, 1139.00), num = 1162},
     ["SCP-1193"] = {pos = Vector3.new(93.18, 5.50, 592.32), num = 1193},
     ["SCP-1499"] = {pos = Vector3.new(-2.99, 5.50, 559.65), num = 1499},
+    ["SCP-2006"] = {pos = Vector3.new(502.65, 5.57, 588.81), num = 2006},
     ["SCP-2059"] = {pos = Vector3.new(-52.13, 5.57, 974.38), num = 2059},
     ["D-Block"] = {pos = Vector3.new(-356.76, -1.50, 517.23), num = 9999},
     ["Generator"] = {pos = Vector3.new(-233.49, 4.44, 195.04), num = 9998},
     ["Pocket Dimension"] = {pos = Vector3.new(5792.15, 2.50, 5520.05), num = 9997},
-    ["Cont X"] = {pos = Vector3.new(127.89, 5.65, 1024.25), num = 9996},
+    ["Cont X"] = {pos = Vector3.new(432.37, 5.57, 1024.40), num = 9996},
     ["Nuke"] = {pos = Vector3.new(525.98, 5.65, 1023.73), num = 9995},
+    ["Reality Cire"] = {pos = Vector3.new(658.00, 5.57, 1024.07), num = 9996},
     ["Pumps"] = {pos = Vector3.new(-407.21, 4.31, 210.67), num = 9994},
     ["Arsenal"] = {pos = Vector3.new(91.89, 5.64, 475.40), num = 9993},
     ["Arsenal 2"] = {pos = Vector3.new(-40.87, 5.62, 811.13), num = 9992}
@@ -560,36 +564,261 @@ end)
 
 
 -- Кнопка Fast gun среди мест для телепорта
-do
-    local fastGunBtn = Instance.new("TextButton", scroll)
-    fastGunBtn.Size = UDim2.new(0.95, 0, 0, 40)
-    fastGunBtn.Position = UDim2.new(0.025, 0, 0, 0)
-    fastGunBtn.Text = "Fast gun"
-    fastGunBtn.TextColor3 = Color3.new(1, 1, 1)
-    fastGunBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 180)
-    fastGunBtn.Font = Enum.Font.SourceSansBold
-    fastGunBtn.TextSize = 16
-    fastGunBtn.ZIndex = 12
-    local fastGunBtnCorner = Instance.new("UICorner", fastGunBtn)
-    fastGunBtnCorner.CornerRadius = UDim.new(0, 10)
-    fastGunBtn.MouseButton1Click:Connect(function()
-        local targetCFrame = CFrame.new(264.35, 49.23, 267.80)
-        local initialFreezeTime = 1.5
-        local postFreezeTime = 3
-        local char = player.Character or player.CharacterAdded:Wait()
-        local hrp = char:WaitForChild("HumanoidRootPart")
-        hrp.CFrame = targetCFrame
-        hrp.Anchored = true
-        print("[INFO] Персонаж зафиксирован. Ждем "..initialFreezeTime.." секунд...")
-        task.wait(initialFreezeTime)
-        hrp.Anchored = false
-        print("[INFO] Персонаж разморожен, можно брать предмет.")
-        task.wait(postFreezeTime)
-    end)
-end
+-- Кнопка FAST SCP 034 (теперь выше Fast gun)
+local fastGunBtn034 = Instance.new("TextButton", scroll)
+fastGunBtn034.Size = UDim2.new(0.95, 0, 0, 40)
+fastGunBtn034.Position = UDim2.new(0.025, 0, 0, 0)
+fastGunBtn034.Text = "FAST SCP 034"
+fastGunBtn034.TextColor3 = Color3.new(1, 1, 1)
+fastGunBtn034.BackgroundColor3 = Color3.fromRGB(70, 50, 50) -- как у FAST SCP 403
+fastGunBtn034.Font = Enum.Font.SourceSansBold
+fastGunBtn034.TextSize = 16
+fastGunBtn034.ZIndex = 12
+local fastGunBtn034Corner = Instance.new("UICorner", fastGunBtn034)
+fastGunBtn034Corner.CornerRadius = UDim.new(0, 10)
+fastGunBtn034.MouseButton1Click:Connect(function()
+    local targetCFrame = CFrame.new(-134.13, 5.57, 1150.41)
+    local initialFreezeTime = 1.5
+    local postFreezeTime = 3
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    hrp.CFrame = targetCFrame
+    hrp.Anchored = true
+    print("[INFO] Персонаж зафиксирован. Ждем "..initialFreezeTime.." секунд...")
+    task.wait(initialFreezeTime)
+    hrp.Anchored = false
+    print("[INFO] Персонаж разморожен, можно брать предмет.")
+    task.wait(postFreezeTime)
+end)
+
+-- Кнопка Fast gun (ниже FAST SCP 034)
+local fastGunBtn = Instance.new("TextButton", scroll)
+fastGunBtn.Size = UDim2.new(0.95, 0, 0, 40)
+fastGunBtn.Position = UDim2.new(0.025, 0, 0, 0)
+fastGunBtn.Text = "Fast gun"
+fastGunBtn.TextColor3 = Color3.new(1, 1, 1)
+fastGunBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 180) -- исходный синий цвет
+fastGunBtn.Font = Enum.Font.SourceSansBold
+fastGunBtn.TextSize = 16
+fastGunBtn.ZIndex = 12
+local fastGunBtnCorner = Instance.new("UICorner", fastGunBtn)
+fastGunBtnCorner.CornerRadius = UDim.new(0, 10)
+fastGunBtn.MouseButton1Click:Connect(function()
+    local targetCFrame = CFrame.new(264.35, 49.23, 267.80)
+    local initialFreezeTime = 1.5
+    local postFreezeTime = 3
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    hrp.CFrame = targetCFrame
+    hrp.Anchored = true
+    print("[INFO] Персонаж зафиксирован. Ждем "..initialFreezeTime.." секунд...")
+    task.wait(initialFreezeTime)
+    hrp.Anchored = false
+    print("[INFO] Персонаж разморожен, можно брать предмет.")
+    task.wait(postFreezeTime)
+end)
 
 
 -- Кнопка запуска SubmergeGUI в настройках (выше кнопки Сохранить)
+-- Перемещаем определение функции выше обработчика
+local function launchSubmergeGUI()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local rootPart = character:WaitForChild("HumanoidRootPart")
+    local camera = workspace.CurrentCamera
+    local submerged = false
+    local swimSpeed = 20
+    local submergeOffset = 6.45
+    local riseMultiplier = 1.1
+    local noclipParts = {}
+    local originalCameraCFrame = nil
+    local savedSubmergePosition = nil
+    local animationPlaying = false
+    local animationToggleButton = nil
+    local playerData = {
+        buttonPosition = UDim2.new(1, -175, 0.5, -100),
+        animationButtonPosition = UDim2.new(1, -175, 0.5, -40)
+    }
+    local animation = Instance.new("Animation")
+    animation.AnimationId = "rbxassetid://536135263"
+    local animator = humanoid:WaitForChild("Animator")
+    local animationTrack = animator:LoadAnimation(animation)
+    animationTrack.Looped = false
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "SubmergeGUI"
+    gui.ResetOnSpawn = false
+    gui.Parent = player:WaitForChild("PlayerGui")
+
+    -- Собственное меню для Submerge и Arm Up
+    local submergeMenu = Instance.new("Frame")
+    submergeMenu.Name = "SubmergeMenu"
+    submergeMenu.Parent = gui
+    submergeMenu.Size = UDim2.new(0, 180, 0, 120)
+    submergeMenu.Position = UDim2.new(0.5, -90, 0.5, -60)
+    submergeMenu.BackgroundColor3 = Color3.fromRGB(36, 40, 60)
+    submergeMenu.BackgroundTransparency = 0.1
+    submergeMenu.BorderSizePixel = 0
+    submergeMenu.ZIndex = 20
+    local menuCorner = Instance.new("UICorner")
+    menuCorner.CornerRadius = UDim.new(0, 18)
+    menuCorner.Parent = submergeMenu
+
+    -- Перетаскивание submergeMenu
+    local dragging = false
+    local dragStart, startPos
+    submergeMenu.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = submergeMenu.Position
+        end
+    end)
+    submergeMenu.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            submergeMenu.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+
+    local submergeBtn = Instance.new("TextButton")
+    submergeBtn.Name = "SubmergeButton"
+    submergeBtn.Parent = submergeMenu
+    submergeBtn.Size = UDim2.new(1, -20, 0, 44)
+    submergeBtn.Position = UDim2.new(0, 10, 0, 10)
+    submergeBtn.AnchorPoint = Vector2.new(0, 0)
+    submergeBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 180)
+    submergeBtn.TextColor3 = Color3.new(1, 1, 1)
+    submergeBtn.Text = "Submerge"
+    submergeBtn.Font = Enum.Font.GothamBold
+    submergeBtn.TextSize = 18
+    submergeBtn.TextStrokeTransparency = 0
+    submergeBtn.TextStrokeColor3 = Color3.new(0, 0, 0)
+    submergeBtn.BackgroundTransparency = 0.2
+    submergeBtn.BorderSizePixel = 0
+    submergeBtn.AutoButtonColor = true
+    submergeBtn.Draggable = false
+    submergeBtn.ZIndex = 21
+    local submergeCorner = Instance.new("UICorner")
+    submergeCorner.CornerRadius = UDim.new(0, 12)
+    submergeCorner.Parent = submergeBtn
+
+    local armUpBtn = Instance.new("TextButton")
+    armUpBtn.Name = "ArmUpButton"
+    armUpBtn.Parent = submergeMenu
+    armUpBtn.Size = UDim2.new(1, -20, 0, 44)
+    armUpBtn.Position = UDim2.new(0, 10, 0, 64)
+    armUpBtn.AnchorPoint = Vector2.new(0, 0)
+    armUpBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+    armUpBtn.TextColor3 = Color3.new(1, 1, 1)
+    armUpBtn.Text = "Arm Up: Off"
+    armUpBtn.Font = Enum.Font.GothamBold
+    armUpBtn.TextSize = 18
+    armUpBtn.TextStrokeTransparency = 0
+    armUpBtn.TextStrokeColor3 = Color3.new(0, 0, 0)
+    armUpBtn.BackgroundTransparency = 0.2
+    armUpBtn.BorderSizePixel = 0
+    armUpBtn.AutoButtonColor = true
+    armUpBtn.Draggable = false
+    armUpBtn.ZIndex = 21
+    local armUpCorner = Instance.new("UICorner")
+    armUpCorner.CornerRadius = UDim.new(0, 12)
+    armUpCorner.Parent = armUpBtn
+    local highlight = Instance.new("Highlight")
+    highlight.Enabled = false
+    highlight.FillTransparency = 1
+    highlight.OutlineTransparency = 0
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.Parent = character
+    for _, part in pairs(character:GetChildren()) do
+        if part.Name == "Left Arm" or part.Name == "Right Arm" then
+            table.insert(noclipParts, part)
+        end
+    end
+    local function toggleNoclip(state)
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                if table.find(noclipParts, part) then
+                    part.CanCollide = false
+                else
+                    part.CanCollide = not state
+                end
+            end
+        end
+    end
+    local function submerge()
+        originalCameraCFrame = camera.CFrame
+        camera.CameraType = Enum.CameraType.Custom
+        savedSubmergePosition = rootPart.Position - Vector3.new(0, submergeOffset, 0)
+        toggleNoclip(true)
+        rootPart.CFrame = CFrame.new(savedSubmergePosition)
+        humanoid.PlatformStand = true
+        highlight.Enabled = true
+        submerged = true
+        submergeBtn.Text = "Rise Up"
+    end
+    local function surface()
+        toggleNoclip(false)
+        humanoid.PlatformStand = false
+        rootPart.CFrame = rootPart.CFrame + Vector3.new(0, submergeOffset * riseMultiplier, 0)
+        highlight.Enabled = false
+        submerged = false
+        submergeBtn.Text = "Submerge"
+        camera.CFrame = originalCameraCFrame
+    end
+    local function toggleArmUp()
+        if animationPlaying then
+            animationTrack:Stop()
+            armUpBtn.Text = "Arm Up: Off"
+            animationPlaying = false
+        else
+            animationPlaying = true
+            armUpBtn.Text = "Arm Up: On"
+            while animationPlaying do
+                animationTrack:Play()
+                animationTrack.TimePosition = 0.2
+                task.wait(0.03)
+            end
+        end
+    end
+    game:GetService("RunService").Stepped:Connect(function()
+        if submerged then
+            toggleNoclip(true)
+        end
+    end)
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if submerged then
+            rootPart.CFrame = CFrame.new(rootPart.Position.X, savedSubmergePosition.Y, rootPart.Position.Z)
+            rootPart.Velocity = humanoid.MoveDirection * swimSpeed
+        end
+    end)
+    submergeBtn.MouseButton1Click:Connect(function()
+        if not submerged then
+            submerge()
+        else
+            surface()
+        end
+    end)
+    armUpBtn.MouseButton1Click:Connect(toggleArmUp)
+    submergeBtn:GetPropertyChangedSignal("Position"):Connect(function()
+        playerData.buttonPosition = submergeBtn.Position
+    end)
+    armUpBtn:GetPropertyChangedSignal("Position"):Connect(function()
+        playerData.animationButtonPosition = armUpBtn.Position
+    end)
+    game.Players.LocalPlayer.CharacterAdded:Connect(function()
+        task.wait(0.01)
+        submergeBtn.Position = playerData.buttonPosition
+        armUpBtn.Position = playerData.animationButtonPosition
+    end)
+end
+
 local submergeBtn = Instance.new("TextButton", settingsPanel)
 submergeBtn.Size = UDim2.new(0, 180, 0, 36)
 submergeBtn.Position = UDim2.new(0, 20, 0, 160) -- выше кнопки Сохранить
@@ -601,7 +830,16 @@ submergeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 submergeBtn.ZIndex = 12
 local submergeBtnCorner = Instance.new("UICorner", submergeBtn)
 submergeBtnCorner.CornerRadius = UDim.new(0, 10)
+local submergeGuiInstance = nil
 submergeBtn.MouseButton1Click:Connect(function()
+    local playerGui = game.Players.LocalPlayer:FindFirstChild("PlayerGui")
+    if playerGui then
+        local existing = playerGui:FindFirstChild("SubmergeGUI")
+        if existing then
+            existing:Destroy()
+            return
+        end
+    end
     launchSubmergeGUI()
 end)
 
@@ -631,6 +869,7 @@ backBtn.Position = UDim2.new(1, -100, 1, -44)
 backBtn.BackgroundColor3 = Color3.fromRGB(50, 60, 90)
 backBtn.Font = Enum.Font.SourceSans
 backBtn.TextSize = 16
+    -- Кнопка FAST SCP 034
 backBtn.Text = "Назад"
 backBtn.TextColor3 = Color3.fromRGB(200, 220, 255)
 backBtn.ZIndex = 11
@@ -684,162 +923,6 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- === SubmergeGUI: запуск только по кнопке ===
-local function launchSubmergeGUI()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    local rootPart = character:WaitForChild("HumanoidRootPart")
-    local camera = workspace.CurrentCamera
-    local submerged = false
-    local swimSpeed = 20
-    local submergeOffset = 6.45
-    local riseMultiplier = 1.1
-    local noclipParts = {}
-    local originalCameraCFrame = nil
-    local savedSubmergePosition = nil
-    local animationPlaying = false
-    local animationToggleButton = nil
-    local playerData = {
-        buttonPosition = UDim2.new(1, -175, 0.5, -100),
-        animationButtonPosition = UDim2.new(1, -175, 0.5, -40)
-    }
-    local animation = Instance.new("Animation")
-    animation.AnimationId = "rbxassetid://536135263"
-    local animator = humanoid:WaitForChild("Animator")
-    local animationTrack = animator:LoadAnimation(animation)
-    animationTrack.Looped = false
-    local gui = Instance.new("ScreenGui")
-    gui.Name = "SubmergeGUI"
-    gui.ResetOnSpawn = false
-    gui.Parent = player:WaitForChild("PlayerGui")
-    local button = Instance.new("TextButton")
-    button.Name = "SubmergeButton"
-    button.Parent = gui
-    button.Size = UDim2.new(0, 150, 0, 50)
-    button.Position = playerData.buttonPosition
-    button.AnchorPoint = Vector2.new(1, 0.5)
-    button.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.Text = "Submerge"
-    button.Font = Enum.Font.GothamBold
-    button.TextSize = 18
-    button.TextStrokeTransparency = 0
-    button.TextStrokeColor3 = Color3.new(0, 0, 0)
-    button.BackgroundTransparency = 0.2
-    button.BorderSizePixel = 0
-    button.AutoButtonColor = true
-    button.Draggable = true
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 15)
-    corner.Parent = button
-    animationToggleButton = Instance.new("TextButton")
-    animationToggleButton.Name = "AnimationToggleButton"
-    animationToggleButton.Parent = gui
-    animationToggleButton.Size = UDim2.new(0, 150, 0, 50)
-    animationToggleButton.Position = playerData.animationButtonPosition
-    animationToggleButton.AnchorPoint = Vector2.new(1, 0.5)
-    animationToggleButton.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
-    animationToggleButton.TextColor3 = Color3.new(1, 1, 1)
-    animationToggleButton.Text = "Arm up: On/Off"
-    animationToggleButton.Font = Enum.Font.GothamBold
-    animationToggleButton.TextSize = 18
-    animationToggleButton.TextStrokeTransparency = 0
-    animationToggleButton.TextStrokeColor3 = Color3.new(0, 0, 0)
-    animationToggleButton.BackgroundTransparency = 0.2
-    animationToggleButton.BorderSizePixel = 0
-    animationToggleButton.AutoButtonColor = true
-    animationToggleButton.Draggable = true
-    local animCorner = Instance.new("UICorner")
-    animCorner.CornerRadius = UDim.new(0, 15)
-    animCorner.Parent = animationToggleButton
-    local highlight = Instance.new("Highlight")
-    highlight.Enabled = false
-    highlight.FillTransparency = 1
-    highlight.OutlineTransparency = 0
-    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-    highlight.Parent = character
-    for _, part in pairs(character:GetChildren()) do
-        if part.Name == "Left Arm" or part.Name == "Right Arm" then
-            table.insert(noclipParts, part)
-        end
-    end
-    local function toggleNoclip(state)
-        for _, part in pairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                if table.find(noclipParts, part) then
-                    part.CanCollide = false
-                else
-                    part.CanCollide = not state
-                end
-            end
-        end
-    end
-    local function submerge()
-        originalCameraCFrame = camera.CFrame
-        camera.CameraType = Enum.CameraType.Custom
-        savedSubmergePosition = rootPart.Position - Vector3.new(0, submergeOffset, 0)
-        toggleNoclip(true)
-        rootPart.CFrame = CFrame.new(savedSubmergePosition)
-        humanoid.PlatformStand = true
-        highlight.Enabled = true
-        submerged = true
-        button.Text = "Rise Up"
-    end
-    local function surface()
-        toggleNoclip(false)
-        humanoid.PlatformStand = false
-        rootPart.CFrame = rootPart.CFrame + Vector3.new(0, submergeOffset * riseMultiplier, 0)
-        highlight.Enabled = false
-        submerged = false
-        button.Text = "Submerge"
-        camera.CFrame = originalCameraCFrame
-    end
-    local function toggleAnimation()
-        if animationPlaying then
-            animationTrack:Stop()
-            animationToggleButton.Text = "Arm up: On/Off"
-            animationPlaying = false
-        else
-            animationPlaying = true
-            animationToggleButton.Text = "Arm up: Off"
-            while animationPlaying do
-                animationTrack:Play()
-                animationTrack.TimePosition = 0.2
-                task.wait(0.03)
-            end
-        end
-    end
-    game:GetService("RunService").Stepped:Connect(function()
-        if submerged then
-            toggleNoclip(true)
-        end
-    end)
-    game:GetService("RunService").RenderStepped:Connect(function()
-        if submerged then
-            rootPart.CFrame = CFrame.new(rootPart.Position.X, savedSubmergePosition.Y, rootPart.Position.Z)
-            rootPart.Velocity = humanoid.MoveDirection * swimSpeed
-        end
-    end)
-    button.MouseButton1Click:Connect(function()
-        if submerged then
-            surface()
-        else
-            submerge()
-        end
-    end)
-    animationToggleButton.MouseButton1Click:Connect(toggleAnimation)
-    button:GetPropertyChangedSignal("Position"):Connect(function()
-        playerData.buttonPosition = button.Position
-    end)
-    animationToggleButton:GetPropertyChangedSignal("Position"):Connect(function()
-        playerData.animationButtonPosition = animationToggleButton.Position
-    end)
-    game.Players.LocalPlayer.CharacterAdded:Connect(function()
-        task.wait(0.01)
-        button.Position = playerData.buttonPosition
-        animationToggleButton.Position = playerData.animationButtonPosition
-    end)
-end
 
 
 -- ...existing code...
