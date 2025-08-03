@@ -109,7 +109,7 @@ local LOCATIONS = {
     ["SCP-701"] = {pos = Vector3.new(-30.51, 15.57, 1199.67), num = 701},
     ["SCP-714"] = {pos = Vector3.new(-3.12, 5.50, 475.03), num = 714},
     ["SCP-860"] = {pos = Vector3.new(26.12, 5.50, 732.43), num = 860},
-    ["SCP-914"] = {pos = Vector3.new(1.80, 5.50, 614.67), num = 914},
+    ["SCP-914"] = {pos = Vector3.new(-78.02, 5.50, 643.57), num = 914},
     ["SCP-963"] = {pos = Vector3.new(63.67, -2.15, 250.23), num = 963},
     ["SCP-999"] = {pos = Vector3.new(-40.69, 5.50, 679.53), num = 999},
     ["SCP-2521"] = {pos = Vector3.new(-24.32, 5.57, 1056.30), num = 0},
